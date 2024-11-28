@@ -1,0 +1,369 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water & Climate Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <style>
+        .quiz-container {
+            max-width: 42rem;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            background: #e5e7eb;
+            border-radius: 9999px;
+            height: 0.625rem;
+        }
+        
+        .progress-bar-fill {
+            background: #2563eb;
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s;
+        }
+        
+        .question-container {
+            margin-top: 1rem;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .option-button {
+            width: 100%;
+            padding: 1rem;
+            text-align: left;
+            border-radius: 0.5rem;
+            background: #f3f4f6;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .option-button:hover {
+            background: #e5e7eb;
+        }
+        
+        .option-button:disabled {
+            cursor: not-allowed;
+        }
+        
+        .option-correct {
+            background: #bbf7d0 !important;
+        }
+        
+        .option-incorrect {
+            background: #fecaca !important;
+        }
+        
+        .explanation {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 0.5rem;
+            color: #1e40af;
+            font-size: 0.875rem;
+        }
+        
+        .results-container {
+            text-align: center;
+        }
+        
+        .restart-button {
+            background: #2563eb;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .restart-button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex justify-between items-center p-4">
+        <div class="text-xl font-bold">Water Conservation App</div>
+        <div class="space-x-4">
+            <a href="index.html" class="text-blue-600">Home</a>
+            <a href="Learn.html" class="text-blue-600">Learn</a>
+            <a href="#" class="text-blue-600">Quiz</a>
+            <a href="profile.html" class="text-blue-600">Profile</a>
+        </div>
+    </div>
+
+    <div id="quiz" class="quiz-container"></div>
+
+    <script>
+        class WaterClimateQuiz {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.showResults = false;
+                this.selectedAnswer = null;
+                
+                this.questions = [
+                    {
+                        question: "What percentage of Earth's water is freshwater?",
+                        options: ["3%", "50%", "25%", "75%"],
+                        correct: 0,
+                        explanation: "Only 3% of Earth's water is freshwater, and most of it is frozen in glaciers and ice caps."
+                    },
+                    {
+                        question: "How does climate change affect water resources?",
+                        options: [
+                            "Changes in precipitation patterns",
+                            "Increased evaporation rates",
+                            "Rising sea levels",
+                            "All of the above"
+                        ],
+                        correct: 3,
+                        explanation: "Climate change affects water resources through multiple mechanisms including changing precipitation patterns, increased evaporation, and rising sea levels."
+                    },
+                    {
+                        question: "What is the ideal pH level for drinking water?",
+                        options: ["5.5-6.5", "6.5-7.5", "7.0-8.0", "8.0-9.0"],
+                        correct: 1,
+                        explanation: "The ideal pH level for drinking water is between 6.5-7.5, making it slightly neutral to slightly alkaline."
+                    },
+                    {
+                        question: "Which sector consumes the most freshwater globally?",
+                        options: ["Industry", "Agriculture", "Domestic Use", "Energy Production"],
+                        correct: 1,
+                        explanation: "Agriculture accounts for approximately 70% of global freshwater consumption."
+                    },
+                    {
+                        question: "What percentage of the world's population lacks access to safe drinking water?",
+                        options: ["5%", "15%", "25%", "35%"],
+                        correct: 2,
+                        explanation: "About 25% of the world's population lacks access to safely managed drinking water services."
+                    },
+                    {
+                        question: "How can climate change lead to water scarcity?",
+                        options: [
+                            "Increased drought frequency",
+                            "Melting glaciers",
+                            "Changes in rainfall patterns",
+                            "All of the above"
+                        ],
+                        correct: 3,
+                        explanation: "Climate change contributes to water scarcity through multiple factors including more frequent droughts, glacier melt, and altered rainfall patterns."
+                    },
+                    {
+                        question: "What is water stress?",
+                        options: [
+                            "When demand exceeds available supply",
+                            "When water is too hot",
+                            "When water is too cold",
+                            "When water is too deep"
+                        ],
+                        correct: 0,
+                        explanation: "Water stress occurs when the demand for water exceeds the available amount during a certain period."
+                    },
+                    {
+                        question: "Which of these is NOT a way to conserve water?",
+                        options: [
+                            "Taking shorter showers",
+                            "Leaving the tap running",
+                            "Using drought-resistant plants",
+                            "Fixing leaky pipes"
+                        ],
+                        correct: 1,
+                        explanation: "Leaving the tap running wastes water. All other options help conserve water."
+                    },
+                    {
+                        question: "What percentage of water on Earth is saltwater?",
+                        options: ["50%", "75%", "97%", "25%"],
+                        correct: 2,
+                        explanation: "97% of Earth's water is saltwater found in oceans and seas."
+                    },
+                    {
+                        question: "How does water pollution contribute to climate change?",
+                        options: [
+                            "It releases greenhouse gases",
+                            "It decreases biodiversity",
+                            "It affects carbon absorption",
+                            "All of the above"
+                        ],
+                        correct: 3,
+                        explanation: "Water pollution contributes to climate change through multiple mechanisms including greenhouse gas release, reduced biodiversity, and impaired carbon absorption."
+                    }
+                ];
+
+                this.init();
+            }
+
+            init() {
+                this.render();
+            }
+
+            handleAnswer(selectedIndex) {
+                this.selectedAnswer = selectedIndex;
+                
+                if (selectedIndex === this.questions[this.currentQuestion].correct) {
+                    this.score++;
+                }
+
+                this.render();
+
+                setTimeout(() => {
+                    if (this.currentQuestion + 1 < this.questions.length) {
+                        this.currentQuestion++;
+                        this.selectedAnswer = null;
+                    } else {
+                        this.showResults = true;
+                    }
+                    this.render();
+                }, 2000);
+            }
+
+            nextQuestion() {
+                if (this.currentQuestion + 1 < this.questions.length) {
+                    this.currentQuestion++;
+                    this.selectedAnswer = null;
+                    this.render();
+                }
+            }
+
+            previousQuestion() {
+                if (this.currentQuestion > 0) {
+                    this.currentQuestion--;
+                    this.selectedAnswer = null;
+                    this.render();
+                }
+            }
+
+            skipQuestion() {
+                if (this.currentQuestion + 1 < this.questions.length) {
+                    this.currentQuestion++;
+                    this.selectedAnswer = null;
+                    this.render();
+                }
+            }
+
+            submitQuiz() {
+                this.showResults = true;
+                this.render();
+            }
+
+            restartQuiz() {
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.showResults = false;
+                this.selectedAnswer = null;
+                this.render();
+            }
+
+            render() {
+                if (!this.showResults) {
+                    this.renderQuestion();
+                } else {
+                    this.renderResults();
+                }
+            }
+
+            renderQuestion() {
+                const progress = ((this.currentQuestion + 1) / this.questions.length) * 100;
+                const currentQ = this.questions[this.currentQuestion];
+
+                this.container.innerHTML = `
+                    <h2 class="text-2xl font-bold mb-6 text-center">
+                        Water & Climate Quiz
+                    </h2>
+                    <div class="mb-4">
+                        <span class="text-blue-600 text-sm">
+                            Question ${this.currentQuestion + 1} of ${this.questions.length}
+                        </span>
+                        <div class="progress-bar">
+                            <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl mb-4">${currentQ.question}</h3>
+                    <div class="options-container">
+                        ${currentQ.options.map((option, index) => `
+                            <button 
+                                class="option-button ${
+                                    this.selectedAnswer !== null 
+                                        ? index === currentQ.correct 
+                                            ? 'option-correct'
+                                            : index === this.selectedAnswer 
+                                                ? 'option-incorrect'
+                                                : ''
+                                        : ''
+                                }"
+                                onclick="quiz.handleAnswer(${index})"
+                                ${this.selectedAnswer !== null ? 'disabled' : ''}
+                            >
+                                ${option}
+                            </button>
+                        `).join('')}
+                    </div>
+                    ${this.selectedAnswer !== null ? `
+                        <div class="explanation">
+                            <p>${currentQ.explanation}</p>
+                        </div>
+                    ` : ''}
+                    <div class="flex justify-between mt-4">
+                        <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded" onclick="quiz.previousQuestion()" ${this.currentQuestion === 0 ? 'disabled' : ''}>
+                            Previous
+                        </button>
+                        <button class="bg-gray-300 text-gray-700 px-4 py-2 rounded" onclick="quiz.skipQuestion()">
+                            Skip
+                        </button>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded" onclick="quiz.nextQuestion()" ${this.currentQuestion + 1 === this.questions.length ? 'disabled' : ''}>
+                            Next
+                        </button>
+                    </div>
+                    <div class="flex justify-center mt-4">
+                        <button class="bg-green-600 text-white px-4 py-2 rounded" onclick="quiz.submitQuiz()">
+                            Submit
+                        </button>
+                    </div>
+                `;
+            }
+
+            renderResults() {
+                const percentage = Math.round((this.score / this.questions.length) * 100);
+                
+                this.container.innerHTML = `
+                    <div class="results-container">
+                        <h3 class="text-2xl mb-4">Quiz Complete!</h3>
+                        <p class="text-xl mb-4">
+                            Your Score: ${this.score} out of ${this.questions.length}
+                        </p>
+                        <div class="mb-6">
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-600">
+                                ${percentage}% Correct
+                            </p>
+                        </div>
+                        <button class="restart-button" onclick="quiz.restartQuiz()">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize the quiz
+        const quiz = new WaterClimateQuiz('quiz');
+    </script>
+</body>
+</html>

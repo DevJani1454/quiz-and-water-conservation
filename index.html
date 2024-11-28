@@ -1,0 +1,475 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Conservation App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+
+    <style>
+        .quiz-container {
+            max-width: 42rem;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            background: #e5e7eb;
+            border-radius: 9999px;
+            height: 0.625rem;
+        }
+        
+        .progress-bar-fill {
+            background: #2563eb;
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s;
+        }
+        
+        .question-container {
+            margin-top: 1rem;
+        }
+        
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .option-button {
+            width: 100%;
+            padding: 1rem;
+            text-align: left;
+            border-radius: 0.5rem;
+            background: #f3f4f6;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .option-button:hover {
+            background: #e5e7eb;
+        }
+        
+        .option-button:disabled {
+            cursor: not-allowed;
+        }
+        
+        .option-correct {
+            background: #bbf7d0 !important;
+        }
+        
+        .option-incorrect {
+            background: #fecaca !important;
+        }
+        
+        .explanation {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #eff6ff;
+            border-radius: 0.5rem;
+            color: #1e40af;
+            font-size: 0.875rem;
+        }
+        
+        .results-container {
+            text-align: center;
+        }
+        
+        .restart-button {
+            background: #2563eb;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .restart-button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="font-sans pb-16"></div>
+
+    <script>
+        class WaterClimateQuiz {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.showResults = false;
+                this.selectedAnswer = null;
+                
+                this.questions = [
+                    {
+                        question: "What percentage of Earth's water is freshwater?",
+                        options: ["3%", "50%", "25%", "75%"],
+                        correct: 0
+                    },
+                    {
+                        question: "How does climate change affect water resources?",
+                        options: [
+                            "Changes in precipitation patterns",
+                            "Increased evaporation rates",
+                            "Rising sea levels",
+                            "All of the above"
+                        ],
+                        correct: 3
+                    },
+                    {
+                        question: "What is the ideal pH level for drinking water?",
+                        options: ["5.5-6.5", "6.5-7.5", "7.0-8.0", "8.0-9.0"],
+                        correct: 1
+                    },
+                    {
+                        question: "Which sector consumes the most freshwater globally?",
+                        options: ["Industry", "Agriculture", "Domestic Use", "Energy Production"],
+                        correct: 1
+                    },
+                    {
+                        question: "What percentage of the world's population lacks access to safe drinking water?",
+                        options: ["5%", "15%", "25%", "35%"],
+                        correct: 2
+                    },
+                    {
+                        question: "How can climate change lead to water scarcity?",
+                        options: [
+                            "Increased drought frequency",
+                            "Melting glaciers",
+                            "Changes in rainfall patterns",
+                            "All of the above"
+                        ],
+                        correct: 3
+                    },
+                    {
+                        question: "What is water stress?",
+                        options: [
+                            "When demand exceeds available supply",
+                            "When water is too hot",
+                            "When water is too cold",
+                            "When water is too deep"
+                        ],
+                        correct: 0
+                    },
+                    {
+                        question: "Which of these is NOT a way to conserve water?",
+                        options: [
+                            "Taking shorter showers",
+                            "Leaving the tap running",
+                            "Using drought-resistant plants",
+                            "Fixing leaky pipes"
+                        ],
+                        correct: 1
+                    },
+                    {
+                        question: "What percentage of water on Earth is saltwater?",
+                        options: ["50%", "75%", "97%", "25%"],
+                        correct: 2
+                    },
+                    {
+                        question: "How does water pollution contribute to climate change?",
+                        options: [
+                            "It releases greenhouse gases",
+                            "It decreases biodiversity",
+                            "It affects carbon absorption",
+                            "All of the above"
+                        ],
+                        correct: 3
+                    }
+                ];
+
+                this.init();
+            }
+
+            init() {
+                this.render();
+            }
+
+            handleAnswer(selectedIndex) {
+                this.selectedAnswer = selectedIndex;
+                
+                if (selectedIndex === this.questions[this.currentQuestion].correct) {
+                    this.score++;
+                }
+
+                this.render();
+
+                setTimeout(() => {
+                    if (this.currentQuestion + 1 < this.questions.length) {
+                        this.currentQuestion++;
+                        this.selectedAnswer = null;
+                    } else {
+                        this.showResults = true;
+                    }
+                    this.render();
+                }, 1000);
+            }
+
+            restartQuiz() {
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.showResults = false;
+                this.selectedAnswer = null;
+                this.render();
+            }
+
+            render() {
+                if (!this.showResults) {
+                    this.renderQuestion();
+                } else {
+                    this.renderResults();
+                }
+            }
+
+            renderQuestion() {
+                const progress = ((this.currentQuestion + 1) / this.questions.length) * 100;
+                const currentQ = this.questions[this.currentQuestion];
+
+                this.container.innerHTML = `
+                    <h2 class="text-2xl font-bold mb-6 text-center">
+                        Water & Climate Quiz
+                    </h2>
+                    <div class="mb-4">
+                        <span class="text-blue-600 text-sm">
+                            Question ${this.currentQuestion + 1} of ${this.questions.length}
+                        </span>
+                        <div class="progress-bar">
+                            <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl mb-4">${currentQ.question}</h3>
+                    <div class="options-container">
+                        ${currentQ.options.map((option, index) => `
+                            <button 
+                                class="option-button ${
+                                    this.selectedAnswer !== null 
+                                        ? index === currentQ.correct 
+                                            ? 'option-correct'
+                                            : index === this.selectedAnswer 
+                                                ? 'option-incorrect'
+                                                : ''
+                                        : ''
+                                }"
+                                onclick="quiz.handleAnswer(${index})"
+                                ${this.selectedAnswer !== null ? 'disabled' : ''}
+                            >
+                                ${option}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            renderResults() {
+                const percentage = Math.round((this.score / this.questions.length) * 100);
+                
+                this.container.innerHTML = `
+                    <div class="results-container">
+                        <h3 class="text-2xl mb-4">Quiz Complete!</h3>
+                        <p class="text-xl mb-4">
+                            Your Score: ${this.score} out of ${this.questions.length}
+                        </p>
+                        <div class="mb-6">
+                            <div class="progress-bar">
+                                <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-600">
+                                ${percentage}% Correct
+                            </p>
+                        </div>
+                        <button class="restart-button" onclick="quiz.restartQuiz()">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        class Taskbar {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.notifications = 3;
+                this.render();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t">
+                        <div class="container mx-auto px-4">
+                            <div class="flex justify-around py-2">
+                                <button class="flex flex-col items-center p-2 text-blue-600" onclick="app.setCurrentSection('home')">
+                                    <i class="fas fa-home w-6 h-6"></i>
+                                    <span class="text-xs">Home</span>
+                                </button>
+                                <button class="flex flex-col items-center p-2 text-blue-600" onclick="app.setCurrentSection('learn')">
+                                    <i class="fas fa-book w-6 h-6"></i>
+                                    <span class="text-xs">Learn</span>
+                                </button>
+                                <button class="flex flex-col items-center p-2 text-blue-600" onclick="app.setCurrentSection('quiz')">
+                                    <i class="fas fa-puzzle-piece w-6 h-6"></i>
+                                    <span class="text-xs">Quiz</span>
+                                </button>
+                                <div class="relative flex flex-col items-center p-2 text-blue-600">
+                                    <i class="fas fa-bell w-6 h-6"></i>
+                                    ${this.notifications > 0 ? `
+                                        <span class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">
+                                            ${this.notifications}
+                                        </span>
+                                    ` : ''}
+                                    <span class="text-xs">Alerts</span>
+                                </div>
+                                <button class="flex flex-col items-center p-2 text-blue-600" onclick="app.setCurrentSection('profile')">
+                                    <i class="fas fa-user-circle w-6 h-6"></i>
+                                    <span class="text-xs">Profile</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        class WaterConservationApp {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.currentSection = 'home';
+                this.render();
+            }
+
+            setCurrentSection(section) {
+                this.currentSection = section;
+                this.render();
+            }
+
+            renderContent() {
+                switch(this.currentSection) {
+                    case 'quiz':
+                        return new WaterClimateQuiz('content');
+                    case 'learn':
+                        return `
+                            <section class="container mx-auto my-16 p-6">
+                                <h2 class="text-2xl font-bold mb-4">Learn About Water Conservation</h2>
+                                <p class="mb-4">Water conservation is the practice of using water efficiently to reduce unnecessary water usage. According to Fresh Water Watch, water conservation is important because fresh clean water is a limited resource, as well as a costly one.</p>
+                                <h3 class="text-xl font-bold mb-2">Why Conserve Water?</h3>
+                                <ul class="list-disc list-inside mb-4">
+                                    <li>Preserve the environment</li>
+                                    <li>Reduce the impact of drought and water shortages</li>
+                                    <li>Save money on utility bills</li>
+                                    <li>Reduce the energy required to process and deliver water</li>
+                                </ul>
+                                <h3 class="text-xl font-bold mb-2">Tips for Conserving Water</h3>
+                                <ul class="list-disc list-inside mb-4">
+                                    <li>Fix leaky faucets and pipes</li>
+                                    <li>Install water-saving showerheads and low-flow faucet aerators</li>
+                                    <li>Take shorter showers</li>
+                                    <li>Turn off the water while brushing your teeth</li>
+                                    <li>Use a broom instead of a hose to clean driveways and sidewalks</li>
+                                    <li>Water your lawn and garden in the early morning or late evening to reduce evaporation</li>
+                                </ul>
+                            </section>
+                        `;
+                    case 'profile':
+                        return `
+                            <section class="container mx-auto my-16 p-6">
+                                <h2 class="text-2xl font-bold mb-4">User Profile</h2>
+                                <p class="mb-4">Manage your profile and settings here.</p>
+                                <div class="bg-white p-4 rounded-lg shadow-md">
+                                    <h3 class="text-xl font-bold mb-2">Profile Information</h3>
+                                    <p class="mb-2"><strong>Name:</strong> John Doe</p>
+                                    <p class="mb-2"><strong>Email:</strong> john.doe@example.com</p>
+                                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Edit Profile</button>
+                                </div>
+                            </section>
+                        `;
+                    default:
+                        return `
+                            <section class="relative bg-blue-100 text-center py-24">
+                                <h1 class="text-4xl font-bold">Water Conservation</h1>
+                                <p class="mt-4 text-lg">Learn about water conservation and how you can help.</p>
+                                <img src="./img/1.jpg" alt="A beautiful landscape with a river flowing through a forest" class="mx-auto mt-6 rounded-lg shadow-lg">
+                            </section>
+                            <section class="container mx-auto my-16 p-6">
+                                <h2 class="text-2xl font-bold mb-4">Interactive Data</h2>
+                                <p>Explore data on water usage and conservation efforts.</p>
+                                <div class="mt-6">
+                                    <div class="bg-white p-4 rounded-lg shadow-md">
+                                        <h3 class="text-xl font-bold mb-2">Global Water Usage</h3>
+                                        <p class="mb-4">The chart below shows the global water usage by sector.</p>
+                                        <img src="./img/2.png" alt="A bar chart showing global water usage by sector" class="mx-auto rounded-lg shadow-lg">
+                                        <img src="./img/3.png" alt="A world map highlighting regions experiencing water scarcity" class="mx-auto rounded-lg shadow-lg">    
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg shadow-md mt-6">
+                                        <h3 class="text-xl font-bold mb-2">Water Scarcity</h3>
+                                        <p class="mb-4">The map below highlights regions experiencing water scarcity.</p>
+                                        <img src="./img/4.png" alt="A world map highlighting regions experiencing water scarcity" class="mx-auto rounded-lg shadow-lg">
+                                    </div>
+                                </div>
+                            </section>
+                            <section class="bg-gray-50 py-16">
+                                <h2 class="text-2xl font-bold mb-4 text-center">Educational Resources</h2>
+                                <p class="text-center mb-6">Find resources to learn more about water conservation.</p>
+                                <div class="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div class="bg-white p-4 rounded-lg shadow-md">
+                                        <h3 class="text-xl font-bold mb-2">Resource 1</h3>
+                                        <p class="mb-4">Description of the first educational resource.</p>
+                                        <a href="#" class="text-blue-600 hover:underline">Learn More</a>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg shadow-md">
+                                        <h3 class="text-xl font-bold mb-2">Resource 2</h3>
+                                        <p class="mb-4">Description of the second educational resource.</p>
+                                        <a href="#" class="text-blue-600 hover:underline">Learn More</a>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg shadow-md">
+                                        <h3 class="text-xl font-bold mb-2">Resource 3</h3>
+                                        <p class="mb-4">Description of the third educational resource.</p>
+                                        <a href="#" class="text-blue-600 hover:underline">Learn More</a>
+                                    </div>
+                                </div>
+                            </section>
+                        `;
+                }
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                        <h1 class="text-xl font-bold">Water Conservation App</h1>
+                        <div>
+                            <button class="text-blue-600" onclick="app.setCurrentSection('home')">Home</button>
+                            <a href="learn.html" class="text-blue-600 ml-4">
+    <button>Learn</button>
+</a>
+                            <a href="quiz.html" class="text-blue-600 ml-4">
+    <button>Quiz</button>
+</a>
+
+                            <button class="text-blue-600 ml-4" onclick="app.setCurrentSection('profile')">Profile</button>
+                        </div>
+                    </header>
+                    <main id="content" class="container mx-auto p-4">
+                        ${this.renderContent()}
+                    </main>
+                    <footer class="bg-gray-800 text-white py-12 text-center">
+                        <p>&copy; 2023 Water Conservation App. All rights reserved.</p>
+                    </footer>
+                `;
+                new Taskbar('taskbar');
+            }
+        }
+
+        const app = new WaterConservationApp('app');
+    </script>
+    
+    <script src="https://cdn.botpress.cloud/webchat/v2.2/inject.js"></script>
+<script src="https://files.bpcontent.cloud/2024/11/25/17/20241125173538-JWTH50S4.js"></script>
+    
+</body>
+</html>
